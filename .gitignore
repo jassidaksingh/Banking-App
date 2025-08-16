@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Database files
+*.db
+
+# Environment variables
+.env
+
+# Logs
+*.log
