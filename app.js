@@ -21,7 +21,9 @@ app.get('/', (req, res) => {
         endpoints: {
             'POST /api/accounts/create': 'Create a new account',
             'POST /api/accounts/deposit/:accountNumber': 'Deposit money',
-            'POST /api/accounts/withdraw/:accountNumber': 'Withdraw money'
+            'POST /api/accounts/withdraw/:accountNumber': 'Withdraw money',
+            'GET /api/accounts/:accountNumber': 'Get account details',
+            'GET /api/accounts/transactions/:accountNumber': 'Get transaction history'
         }
     });
 });

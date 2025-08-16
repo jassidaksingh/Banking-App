@@ -183,6 +183,74 @@ class AccountController {
             });
         });
     }
+
+    // Get account details
+    static getAccountDetails(req, res) {
+        const { accountNumber } = req.params;
+
+        Account.getAccountByNumber(accountNumber, (err, account) => {
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error retrieving account',
+                    error: err.message
+                });
+            }
+
+            if (!account) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Account not found'
+                });
+            }
+
+            res.json({
+                success: true,
+                data: account
+            });
+        });
+    }
+
+    // Get transaction history
+    static getTransactionHistory(req, res) {
+        const { accountNumber } = req.params;
+
+        Account.getAccountByNumber(accountNumber, (err, account) => {
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error retrieving account',
+                    error: err.message
+                });
+            }
+
+            if (!account) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Account not found'
+                });
+            }
+
+            Transaction.getTransactionsByAccountNumber(accountNumber, (err, transactions) => {
+                if (err) {
+                    return res.status(500).json({
+                        success: false,
+                        message: 'Error retrieving transactions',
+                        error: err.message
+                    });
+                }
+
+                res.json({
+                    success: true,
+                    data: {
+                        account_number: account.account_number,
+                        account_holder_name: account.account_holder_name,
+                        transactions: transactions
+                    }
+                });
+            });
+        });
+    }
 }
 
 module.exports = AccountController;

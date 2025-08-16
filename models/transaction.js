@@ -31,6 +31,21 @@ class Transaction {
     }
 
 
+    // Get all transactions for an account
+    static getTransactionsByAccountNumber(accountNumber, callback) {
+        const query = `
+            SELECT * FROM transactions 
+            WHERE account_number = ? 
+            ORDER BY created_at DESC
+        `;
+        
+        db.all(query, [accountNumber], (err, rows) => {
+            if (err) {
+                return callback(err, null);
+            }
+            callback(null, rows);
+        });
+    }
 }
 
 module.exports = Transaction;
