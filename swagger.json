@@ -1,0 +1,145 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Banking API",
+    "version": "1.0.0",
+    "description": "Simple banking microservice"
+  },
+  "paths": {
+    "/api/accounts/create": {
+      "post": {
+        "summary": "Create account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "account_holder_name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created"
+          }
+        }
+      }
+    },
+    "/api/accounts/deposit/{accountNumber}": {
+      "post": {
+        "summary": "Deposit money",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deposit successful"
+          }
+        }
+      }
+    },
+    "/api/accounts/withdraw/{accountNumber}": {
+      "post": {
+        "summary": "Withdraw money",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Withdrawal successful"
+          }
+        }
+      }
+    },
+    "/api/accounts/{accountNumber}": {
+      "get": {
+        "summary": "Get account details",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account details"
+          }
+        }
+      }
+    },
+    "/api/accounts/transactions/{accountNumber}": {
+      "get": {
+        "summary": "Get transaction history",
+        "parameters": [
+          {
+            "name": "accountNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction history"
+          }
+        }
+      }
+    }
+  }
+}

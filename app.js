@@ -1,4 +1,6 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./swagger');
 const { initializeDatabase } = require('./database');
 const accountRoutes = require('./routes/accountsRoutes');
 
@@ -10,6 +12,9 @@ initializeDatabase();
 // Middleware
 app.use(express.json());
 
+// Swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+
 // Routes
 app.use('/api/accounts', accountRoutes);
 
@@ -17,7 +22,7 @@ app.use('/api/accounts', accountRoutes);
 app.get('/', (req, res) => {
     res.json({
         message: 'Banking App API',
-        version: '1.0.0',
+        docs: 'http://localhost:3000/api-docs',
         endpoints: {
             'POST /api/accounts/create': 'Create a new account',
             'POST /api/accounts/deposit/:accountNumber': 'Deposit money',
