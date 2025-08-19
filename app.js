@@ -1,13 +1,26 @@
 const express = require('express');
+const session = require('express-session');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./swagger');
 const { initializeDatabase } = require('./database');
 const accountRoutes = require('./routes/accountsRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
 // Initialize database
 initializeDatabase();
+
+// Session middleware (simple in-memory sessions)
+app.use(session({
+    secret: 'banking-app-secret-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: false,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
 
 // Middleware
 app.use(express.json());
@@ -16,6 +29,7 @@ app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountRoutes);
 
 // Root route
@@ -24,6 +38,9 @@ app.get('/', (req, res) => {
         message: 'Banking App API',
         docs: 'http://localhost:3000/api-docs',
         endpoints: {
+            'POST /api/auth/register': 'Register a new user',
+            'POST /api/auth/login': 'Login user',
+            'POST /api/auth/logout': 'Logout user',
             'POST /api/accounts/create': 'Create a new account',
             'POST /api/accounts/deposit/:accountNumber': 'Deposit money',
             'POST /api/accounts/withdraw/:accountNumber': 'Withdraw money',
