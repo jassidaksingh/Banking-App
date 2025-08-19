@@ -6,28 +6,15 @@ class AccountController {
     static createAccount(req, res) {
         const { account_holder_name } = req.body;
 
-        // Input validation
         if (!account_holder_name || account_holder_name.trim() === '') {
-            return res.status(400).json({
-                success: false,
-                message: 'Account holder name is required'
-            });
+            return res.status(400).json({ message: 'Account holder name is required' });
         }
 
         Account.createAccount(account_holder_name.trim(), (err, account) => {
             if (err) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error creating account',
-                    error: err.message
-                });
+                return res.status(500).json({ message: 'Error creating account' });
             }
-
-            res.status(201).json({
-                success: true,
-                message: 'Account created successfully',
-                data: account
-            });
+            res.status(201).json({ message: 'Account created successfully', account });
         });
     }
 
@@ -36,66 +23,30 @@ class AccountController {
         const { accountNumber } = req.params;
         const { amount, description } = req.body;
 
-        // Input validation
         if (!amount || amount <= 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Amount must be greater than 0'
-            });
+            return res.status(400).json({ message: 'Amount must be greater than 0' });
         }
 
         Account.getAccountByNumber(accountNumber, (err, account) => {
-            if (err) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error retrieving account',
-                    error: err.message
-                });
-            }
-
-            if (!account) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Account not found'
-                });
+            if (err || !account) {
+                return res.status(404).json({ message: 'Account not found' });
             }
 
             const newBalance = parseFloat(account.balance) + parseFloat(amount);
 
-            // Update account balance
             Account.updateBalance(accountNumber, newBalance, (err, updatedAccount) => {
                 if (err) {
-                    return res.status(500).json({
-                        success: false,
-                        message: 'Error updating account balance',
-                        error: err.message
-                    });
+                    return res.status(500).json({ message: 'Error updating balance' });
                 }
 
-                // Create transaction record
                 Transaction.createTransaction(
-                    accountNumber,
-                    'deposit',
-                    parseFloat(amount),
-                    newBalance,
+                    accountNumber, 'deposit', parseFloat(amount), newBalance,
                     description || `Deposit of $${amount}`,
                     (err, transaction) => {
                         if (err) {
-                            return res.status(500).json({
-                                success: false,
-                                message: 'Error creating transaction record',
-                                error: err.message
-                            });
+                            return res.status(500).json({ message: 'Error recording transaction' });
                         }
-
-                        res.json({
-                            success: true,
-                            message: 'Deposit successful',
-                            data: {
-                                account: updatedAccount,
-                                transaction: transaction
-                            }
-                        });
+                        res.json({ message: 'Deposit successful', account: updatedAccount, transaction });
                     }
                 );
             });
@@ -107,77 +58,37 @@ class AccountController {
         const { accountNumber } = req.params;
         const { amount, description } = req.body;
 
-        // Input validation
         if (!amount || amount <= 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Amount must be greater than 0'
-            });
+            return res.status(400).json({ message: 'Amount must be greater than 0' });
         }
 
         Account.getAccountByNumber(accountNumber, (err, account) => {
-            if (err) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error retrieving account',
-                    error: err.message
-                });
-            }
-
-            if (!account) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Account not found'
-                });
+            if (err || !account) {
+                return res.status(404).json({ message: 'Account not found' });
             }
 
             const withdrawAmount = parseFloat(amount);
             const currentBalance = parseFloat(account.balance);
 
-            // Check if sufficient balance
             if (currentBalance < withdrawAmount) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Insufficient balance'
-                });
+                return res.status(400).json({ message: 'Insufficient balance' });
             }
 
             const newBalance = currentBalance - withdrawAmount;
 
-            // Update account balance
             Account.updateBalance(accountNumber, newBalance, (err, updatedAccount) => {
                 if (err) {
-                    return res.status(500).json({
-                        success: false,
-                        message: 'Error updating account balance',
-                        error: err.message
-                    });
+                    return res.status(500).json({ message: 'Error updating balance' });
                 }
 
-                // Create transaction record
                 Transaction.createTransaction(
-                    accountNumber,
-                    'withdrawal',
-                    withdrawAmount,
-                    newBalance,
+                    accountNumber, 'withdrawal', withdrawAmount, newBalance,
                     description || `Withdrawal of $${amount}`,
                     (err, transaction) => {
                         if (err) {
-                            return res.status(500).json({
-                                success: false,
-                                message: 'Error creating transaction record',
-                                error: err.message
-                            });
+                            return res.status(500).json({ message: 'Error recording transaction' });
                         }
-
-                        res.json({
-                            success: true,
-                            message: 'Withdrawal successful',
-                            data: {
-                                account: updatedAccount,
-                                transaction: transaction
-                            }
-                        });
+                        res.json({ message: 'Withdrawal successful', account: updatedAccount, transaction });
                     }
                 );
             });
@@ -189,25 +100,10 @@ class AccountController {
         const { accountNumber } = req.params;
 
         Account.getAccountByNumber(accountNumber, (err, account) => {
-            if (err) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error retrieving account',
-                    error: err.message
-                });
+            if (err || !account) {
+                return res.status(404).json({ message: 'Account not found' });
             }
-
-            if (!account) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Account not found'
-                });
-            }
-
-            res.json({
-                success: true,
-                data: account
-            });
+            res.json({ message: 'Account retrieved successfully', account });
         });
     }
 
@@ -216,37 +112,19 @@ class AccountController {
         const { accountNumber } = req.params;
 
         Account.getAccountByNumber(accountNumber, (err, account) => {
-            if (err) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error retrieving account',
-                    error: err.message
-                });
-            }
-
-            if (!account) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Account not found'
-                });
+            if (err || !account) {
+                return res.status(404).json({ message: 'Account not found' });
             }
 
             Transaction.getTransactionsByAccountNumber(accountNumber, (err, transactions) => {
                 if (err) {
-                    return res.status(500).json({
-                        success: false,
-                        message: 'Error retrieving transactions',
-                        error: err.message
-                    });
+                    return res.status(500).json({ message: 'Error retrieving transactions' });
                 }
-
-                res.json({
-                    success: true,
-                    data: {
-                        account_number: account.account_number,
-                        account_holder_name: account.account_holder_name,
-                        transactions: transactions
-                    }
+                res.json({ 
+                    message: 'Transaction history retrieved successfully',
+                    account_number: account.account_number,
+                    account_holder_name: account.account_holder_name,
+                    transactions 
                 });
             });
         });

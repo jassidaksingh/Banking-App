@@ -13,23 +13,18 @@ class Transaction {
                 return callback(err, null);
             }
             
-            // Return the created transaction
-            Transaction.getTransactionById(this.lastID, callback);
+            // Return transaction data directly (no extra DB call needed)
+            callback(null, {
+                id: this.lastID,
+                account_number: accountNumber,
+                type,
+                amount,
+                balance_after: balanceAfter,
+                description,
+                created_at: new Date().toISOString()
+            });
         });
     }
-
-    // Get transaction by ID
-    static getTransactionById(transactionId, callback) {
-        const query = 'SELECT * FROM transactions WHERE id = ?';
-        
-        db.get(query, [transactionId], (err, row) => {
-            if (err) {
-                return callback(err, null);
-            }
-            callback(null, row);
-        });
-    }
-
 
     // Get all transactions for an account
     static getTransactionsByAccountNumber(accountNumber, callback) {
