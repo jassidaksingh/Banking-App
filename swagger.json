@@ -6,6 +6,58 @@
     "description": "Simple banking microservice"
   },
   "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User registered" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Login user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful" }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Logout user",
+        "responses": {
+          "200": { "description": "Logout successful" }
+        }
+      }
+    },
     "/api/accounts/create": {
       "post": {
         "summary": "Create account",
@@ -51,9 +103,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "amount": {
-                    "type": "number"
-                  }
+                  "amount": { "type": "number" },
+                  "description": { "type": "string" }
                 }
               }
             }
@@ -86,9 +137,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "amount": {
-                    "type": "number"
-                  }
+                  "amount": { "type": "number" },
+                  "description": { "type": "string" }
                 }
               }
             }
