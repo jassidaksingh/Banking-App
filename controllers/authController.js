@@ -6,14 +6,14 @@ class AuthController {
         const { username, password } = req.body;
 
         if (!username || !password) {
-            return res.status(400).json({ message: 'Username and password required' });
+            return res.status(400).json({ success: false, message: 'Username and password required' });
         }
 
         User.create(username, password, (err) => {
             if (err) {
-                return res.status(400).json({ message: 'Username already exists' });
+                return res.status(400).json({ success: false, message: 'Username already exists' });
             }
-            res.status(201).json({ message: 'User registered successfully' });
+            res.status(201).json({ success: true, message: 'User registered successfully' });
         });
     }
 
@@ -22,24 +22,24 @@ class AuthController {
         const { username, password } = req.body;
 
         if (!username || !password) {
-            return res.status(400).json({ message: 'Username and password required' });
+            return res.status(400).json({ success: false, message: 'Username and password required' });
         }
 
         User.findByCredentials(username, password, (err, user) => {
             if (err || !user) {
-                return res.status(401).json({ message: 'Invalid credentials' });
+                return res.status(401).json({ success: false, message: 'Invalid credentials' });
             }
 
             req.session.userId = user.id;
             req.session.username = user.username;
-            res.json({ message: 'Login successful' });
+            res.json({ success: true, message: 'Login successful' });
         });
     }
 
     // Logout user
     static logout(req, res) {
         req.session.destroy();
-        res.json({ message: 'Logout successful' });
+        res.json({ success: true, message: 'Logout successful' });
     }
 }
 

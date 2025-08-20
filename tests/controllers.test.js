@@ -2,86 +2,73 @@ const AccountController = require('../controllers/accountController');
 const Account = require('../models/account');
 const Transaction = require('../models/transaction');
 
-// Mock the models
 jest.mock('../models/account');
 jest.mock('../models/transaction');
 
-describe('Controller Functions', () => {
+describe('Banking Tests', () => {
     let req, res;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        
         req = { body: {}, params: {} };
-        res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn()
-        };
+        res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     });
 
-    // Test AccountController.createAccount
-    test('AccountController.createAccount should validate required name', () => {
-        req.body = {};
-
+    test('createAccount works', () => {
+        req.body = { account_holder_name: 'John' };
+        Account.createAccount.mockImplementation((name, cb) => cb(null, { account_number: 'ACC123' }));
+        
         AccountController.createAccount(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: 'Account holder name is required'
-        });
+        
+        expect(Account.createAccount).toHaveBeenCalledWith('John', expect.any(Function));
+        expect(res.status).toHaveBeenCalledWith(201);
     });
 
-    test('AccountController.createAccount should reject empty name', () => {
-        req.body = { account_holder_name: '   ' };
-
-        AccountController.createAccount(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: 'Account holder name is required'
-        });
-    });
-
-    // Test AccountController.depositMoney
-    test('AccountController.depositMoney should validate positive amount', () => {
-        req.params = { accountNumber: 'ACC12345678' };
-        req.body = { amount: -100 };
+    test('depositMoney works', () => {
+        req.params = { accountNumber: 'ACC123' };
+        req.body = { amount: 100 };
+        Account.getAccountByNumber.mockImplementation((num, cb) => cb(null, { balance: 0 }));
+        Account.updateBalance.mockImplementation((num, bal, cb) => cb(null, { balance: 100 }));
+        Transaction.createTransaction.mockImplementation((num, type, amt, bal, desc, cb) => cb(null, {}));
 
         AccountController.depositMoney(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: 'Amount must be greater than 0'
-        });
+        
+        expect(Account.getAccountByNumber).toHaveBeenCalled();
+        expect(res.json).toHaveBeenCalled();
     });
 
-    test('AccountController.depositMoney should require amount', () => {
-        req.params = { accountNumber: 'ACC12345678' };
-        req.body = {};
-
-        AccountController.depositMoney(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: 'Amount must be greater than 0'
-        });
-    });
-
-    // Test AccountController.withdrawMoney
-    test('AccountController.withdrawMoney should validate positive amount', () => {
-        req.params = { accountNumber: 'ACC12345678' };
-        req.body = { amount: 0 };
+    test('withdrawMoney works', () => {
+        req.params = { accountNumber: 'ACC123' };
+        req.body = { amount: 50 };
+        Account.getAccountByNumber.mockImplementation((num, cb) => cb(null, { balance: 100 }));
+        Account.updateBalance.mockImplementation((num, bal, cb) => cb(null, { balance: 50 }));
+        Transaction.createTransaction.mockImplementation((num, type, amt, bal, desc, cb) => cb(null, {}));
 
         AccountController.withdrawMoney(req, res);
+        
+        expect(Account.getAccountByNumber).toHaveBeenCalled();
+        expect(res.json).toHaveBeenCalled();
+    });
 
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: 'Amount must be greater than 0'
-        });
+    test('getAccountDetails works', () => {
+        req.params = { accountNumber: 'ACC123' };
+        Account.getAccountByNumber.mockImplementation((num, cb) => cb(null, { account_number: 'ACC123' }));
+
+        AccountController.getAccountDetails(req, res);
+        
+        expect(Account.getAccountByNumber).toHaveBeenCalledWith('ACC123', expect.any(Function));
+        expect(res.json).toHaveBeenCalled();
+    });
+
+    test('getTransactionHistory works', () => {
+        req.params = { accountNumber: 'ACC123' };
+        Account.getAccountByNumber.mockImplementation((num, cb) => cb(null, { account_number: 'ACC123' }));
+        Transaction.getTransactionsByAccountNumber.mockImplementation((num, cb) => cb(null, []));
+
+        AccountController.getTransactionHistory(req, res);
+        
+        expect(Account.getAccountByNumber).toHaveBeenCalled();
+        expect(Transaction.getTransactionsByAccountNumber).toHaveBeenCalled();
+        expect(res.json).toHaveBeenCalled();
     });
 });

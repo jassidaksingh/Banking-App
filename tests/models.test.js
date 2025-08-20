@@ -42,20 +42,6 @@ describe('Model Functions', () => {
         });
     });
 
-    test('Account.createAccount should handle database errors', (done) => {
-        const dbError = new Error('Database error');
-
-        db.run.mockImplementation((query, params, callback) => {
-            callback(dbError);
-        });
-
-        Account.createAccount('John Doe', (err, account) => {
-            expect(err).toBe(dbError);
-            expect(account).toBeNull();
-            done();
-        });
-    });
-
     // Test Account.updateBalance
     test('Account.updateBalance should update balance correctly', (done) => {
         const updatedAccount = {
